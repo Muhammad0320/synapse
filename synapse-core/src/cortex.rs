@@ -7,7 +7,7 @@ use iceoryx2::port::subscriber::Subscriber;
 pub struct AgentThought {
 
     pub agent_id: [u8; 16],
-    pub transaction_id: u64,
+    pub thought_id: u64,
     pub payload_size: u32,
 
 }
