@@ -1,0 +1,17 @@
+[package]
+name = "synapse-core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# The Zero-copy Data plane
+rkyv = "0.8.15"
+
+# The shared memory substrate
+iceoryx2 = "0.8.1"
+
+# The State Engine (CRDTs)
+loro = "1.0"
+
+# The Nucleus Async Runtime
+tokio = {version = "1", features = ["full"]}
