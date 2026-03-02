@@ -16,16 +16,40 @@ fn test_zero_copy_swarm_speed() {
 
     // Give the background iceoryx2 daemon 50ms to wire up the shared memory segments
     thread::sleep(Duration::from_millis(50));
+    
+    println!("Warming up the OS and Memory Allocator...");
 
-    // Define the thought
+    // ==============================
+    // The warmup block
+
+        let warmup_thought = AgentThought {
+            agent_id: [0; 16],
+            thought_id: 0, 
+            payload_size: 0 
+        };
+
+        let init_sample = publisher.loan_uninit().expect("Failed to loan init memory");
+        init_sample.write_payload(warmup_thought).send().expect("Failed to send init");
+
+        // Spin until the subscriber recieves the warmup
+        let mut warmed_up = false;
+        while !warmed_up {
+            if let Some(_) = subscriber.receive().expect("Failed to receive init") {
+                warmed_up = true 
+            }
+      }
+
+    // ============================
+
+    println!("Bismillah. Starting Zero-Copy Swarm Benchmark...");
+
     let test_thought = AgentThought {
         agent_id: [1; 16], // Mock Agent UUID
         thought_id: 999,
         payload_size: 1024,
     };
 
-    println!("Bismillah. Starting Zero-Copy Swarm Benchmark...");
-    
+
     // Start the timer
     let start_time = Instant::now();
 
@@ -33,7 +57,7 @@ fn test_zero_copy_swarm_speed() {
     let sample = publisher.loan_uninit().expect("Failed to loan memory");
     let sample = sample.write_payload(test_thought);
     sample.send().expect("Failed to send thought");
-
+     
     // Agent B reads from physical RAM
     let mut received = false;
     while !received {
